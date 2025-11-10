@@ -1,4 +1,4 @@
-package com.bookmx.bookmx;
+package com.bookmx;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
