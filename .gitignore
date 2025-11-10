@@ -1,0 +1,86 @@
+### General ###
+HELP.md
+*.log
+*.tmp
+*.swp
+*.bak
+*.class
+*.DS_Store
+Thumbs.db
+
+### Maven ###
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### Build ###
+build/
+out/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### Spring Boot ###
+# Application runtime files
+*.pid
+*.seed
+*.key
+*.keystore
+*.p12
+
+# Configuration overrides
+application-*.yml
+application-*.yaml
+application-*.properties
+
+# Local environment files
+.env
+.env.*
+*.local
+
+### Mustache Frontend ###
+# Ignore compiled templates or temporary frontend resources
+src/main/resources/static/node_modules/
+src/main/resources/static/dist/
+src/main/resources/static/build/
+src/main/resources/static/.cache/
+src/main/resources/static/.parcel-cache/
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+# JetBrains caches
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/dictionaries
+.idea/**/shelf/
+.idea/**/httpRequests/
+
+### VS Code ###
+.vscode/
+.history/
+.code-workspace
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### OS Specific ###
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
