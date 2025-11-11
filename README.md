@@ -39,18 +39,8 @@ JaCoCo ensures **≥90% coverage**, validating software quality and testing comp
 
 ## 3) System Architecture
 
-```mermaid
-flowchart TD
-  Client[Client: Postman / Frontend / Swagger UI] --> API[Controllers (REST)]
-  API --> DTOs[DTOs]
-  API --> Service[Service Layer]
-  Service --> Repo[Spring Data JPA Repositories]
-  Repo --> DB[(PostgreSQL via Flyway)]
-  Service --> Entities[Entities (JPA)]
-  TestUnit[JUnit + Mockito] --> Service
-  TestWeb[MockMvc] --> API
-  JaCoCo --> CI[Coverage Gate >=90%]
-```
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/3dd5036c-baf0-4b3b-ade5-4add0026f2f0" />
+
 
 **Folder Structure:**
 
