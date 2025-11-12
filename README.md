@@ -430,9 +430,13 @@ A short cross-review was conducted with another team member to evaluate test cla
 
 ## 9. Evidence 
 
-<img width="1024" height="1536" alt="Image" src="https://github.com/user-attachments/assets/9812b73c-db58-437f-a6d4-f02589247036" />
+# Evidence Table
 
-<img width="1536" height="1024" alt="Image" src="https://github.com/user-attachments/assets/c60c784a-6153-4349-8c8b-01478eeca4da" />
+| # | Evidence Description | File Name | Notes |
+|---|-----------------------|------------|--------|
+| 1 | Jest test results (all tests passing, 8/8) | ![Image](https://github.com/user-attachments/assets/c1a75b11-adcc-4393-84d7-ddd71bbb52de)| Console output showing successful unit test execution with Jest. |
+| 2 | Coverage report (≥ 96 %) | ![Image](https://github.com/user-attachments/assets/31bd52fc-6d05-4179-9495-94ca7354c074) | Coverage summary from npm run test:cov demonstrating 97 % line coverage and 96 % statements. |
+| 3 | Frontend interface and graph visualization | <img width="1536" height="1024" alt="Image" src="https://github.com/user-attachments/assets/cd1979a9-4bcf-43c6-a3fd-e1dea66e7fc9" /> | Screenshot of the Astro UI showing the booking search bar and the colorful graph linking Toluca, Mexico City, Puebla and Cuernavaca with distance labels. |
 
 ---
 
