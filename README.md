@@ -81,11 +81,6 @@ export SPRING_DATASOURCE_USERNAME=booking_user
 export SPRING_DATASOURCE_PASSWORD=securepassword
 ```
 
-### Database Setup (Docker Example)
-```bash
-docker run --name booking-db -e POSTGRES_DB=bookingmx   -e POSTGRES_USER=booking_user -e POSTGRES_PASSWORD=securepassword   -p 5432:5432 -d postgres:15
-```
-
 ### Run the Application
 ```bash
 mvn clean package
