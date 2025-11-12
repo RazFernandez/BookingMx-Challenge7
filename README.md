@@ -453,6 +453,293 @@ A short cross-review was conducted with another team member to evaluate test cla
 
 ✅ **C2 achieved:** Demonstrates autonomy, high-quality documentation, reflective practice, and excellent software engineering rigor.
 
+---
+sprint 3
+
+# BookingMx — Sprint 3 Documentation (C2-Level by Rubric)
+
+> **Audience:** This document is written for **non-technical reviewers** and team members. It explains what the system does, how its parts talk to each other, and why our engineering choices improve quality. Technical terms are introduced with simple language.
+
+---
+
+## 1) Executive Summary (What we built and why it matters)
+BookingMx is a small hotel-booking platform for learning and quality assurance.  
+It has **two parts** working together:
+1. **Backend (Spring Boot + PostgreSQL):** stores information about cities, hotels and reservations, and exposes safe web endpoints (URLs) to create/read bookings.
+2. **Frontend (Astro + JavaScript):** a simple “Trivago-style” page where a user searches destinations and sees a **graph of nearby cities with distances**.
+
+**Why this is useful:** Features can break when teams move fast. We added **automated tests** to check the most important rules (like “the end date must be after the start date”). This lowers production risk and makes future changes safer.
+
+---
+
+## 2) How the system works (in plain words)
+- The **user** opens the web page and types a destination and dates.
+- The **frontend** can request hotels or create a reservation by calling the **backend** (a REST API). Think of it as filling out a form and handing it to a clerk.
+- The **backend** verifies the information (for example, that the hotel exists and dates are valid), stores the reservation in the **database**, and replies with a confirmation.
+- For the **map-like graph**, the frontend uses a small JavaScript module that takes city data and draws colored connections and distance labels.
+
+> See the **Architecture diagram** (`docs/diagrams/architecture.mmd`) for a visual overview.
+
+---
+
+## 3) What each component does
+### 3.1 Backend (Spring Boot)
+- **Entities (data models):** `City`, `Hotel`, `Reservation` — these are like forms that describe each object’s fields.
+- **Controllers:** entry points that receive web requests (e.g., “create reservation”).
+- **Services:** where business rules live (e.g., dates must make sense; hotel must exist).
+- **Repositories (JPA):** tiny helpers that read/write to the database without SQL boilerplate.
+- **Database (PostgreSQL):** stores everything safely with references (a Hotel belongs to a City; a Reservation belongs to a Hotel).
+- **Migrations (Flyway):** versioned scripts that create the tables so any teammate can set up the same database structure.
+
+### 3.2 Frontend (Astro + JavaScript)
+- **Search UI:** inputs for destination, dates and guests.
+- **Graph module (`citiesGraph.js`):** pure functions that check data, build connections and prepare coordinates to draw an SVG (vector image) with nodes and colorful lines.
+- **Result view:** displays the selected city and its nearby connections (e.g., Toluca → Mexico City 64 km).
+
+> See the **Class diagram** (`docs/diagrams/class-diagram.mmd`) for how City, Hotel and Reservation relate to each other.
+
+---
+
+## 4) How information moves (step by step)
+This is the real-life story behind “Create a reservation”:
+1. **User** completes the form (hotel, guest name, email, dates).
+2. **Frontend** sends the data to the backend using a POST request (a standard way to submit information).
+3. **Backend Controller** receives the request and passes it to the **Service**.
+4. **Service** checks business rules: the hotel must exist, the end date must be later than the start date, number of guests must be positive, etc.
+5. **Repository** saves the reservation in the **Database**.
+6. **Backend** replies with **201 Created** and a JSON confirmation (the receipt).
+7. **Frontend** shows the confirmation to the user.
+
+> See the **Flowchart** (`docs/diagrams/flowchart.mmd`) that illustrates these steps for non-engineers.
+
+---
+
+## 5) How to set it up (reproducible steps)
+### 5.1 Backend
+1. Install **Java 17+** and **Maven**.  
+2. Install **PostgreSQL** or run this container:
+   ```bash
+   docker run --name booking-db -e POSTGRES_DB=bookingmx      -e POSTGRES_USER=booking_user -e POSTGRES_PASSWORD=securepassword      -p 5432:5432 -d postgres:15
+   ```
+
+3. Configure environment variables (don’t commit secrets):
+   ```bash
+   export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/bookingmx
+   export SPRING_DATASOURCE_USERNAME=booking_user
+   export SPRING_DATASOURCE_PASSWORD=securepassword
+   ```
+
+4. Start the API:
+   ```bash
+   cd backend
+   mvn spring-boot:run
+   ```
+
+Flyway will create the tables automatically.
+
+---
+
+### 5.2 Frontend
+1. Install Node.js 18+.  
+2. Configure the API base URL:
+   ```bash
+   cd web
+   cp .env.example .env
+   # .env
+   # PUBLIC_API_BASE=http://localhost:8080/api
+   ```
+
+3. Run the site:
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+4. Open [http://localhost:4321](http://localhost:4321) in your browser.
+
+---
+
+## 6) Example requests (you can paste these in a terminal)
+
+Replace the base URL with the one from your `.env` if needed.
+
+**Create City**
+```bash
+curl -X POST http://localhost:8080/api/ciudades  -H "Content-Type: application/json"  -d '{"nombre":"Toluca","estado":"Estado de México"}'
+```
+
+**Create Hotel**
+```bash
+curl -X POST http://localhost:8080/api/hoteles  -H "Content-Type: application/json"  -d '{"nombre":"Hotel Central","ciudad":{"id":1},"estrellas":4,"precioPorNoche":1200.5}'
+```
+
+**Create Reservation**
+```bash
+curl -X POST http://localhost:8080/api/reservaciones  -H "Content-Type: application/json"  -d '{"hotelId":1,"nombreHuesped":"Camila","email":"cami@example.com","numPersonas":2,"fechaInicio":"2025-11-20","fechaFin":"2025-11-22"}'
+```
+
+---
+
+## 7) Why tests matter (non-technical view)
+Software changes often. Tests are automatic checklists the computer runs for us. If a future change breaks a rule, tests will fail immediately, so we can fix issues before users see them.
+
+- **Backend:** JUnit + JaCoCo (coverage ≥ 90% lines).  
+- **Frontend:** Jest (coverage ≥ 90% lines/functions).  
+
+Coverage means how much of the code is executed by tests. Higher coverage = fewer blind spots.
+
+---
+
+## 8) Code comments (how we make the code readable)
+
+We use lightweight standards so any teammate can understand “why” quickly:
+
+### 8.1 Javadoc (Java example)
+```java
+/**
+ * Creates reservations enforcing business rules (dates, existing hotel).
+ * Returns the persisted entity or throws an error if validation fails.
+ */
+```
+
+### 8.2 JSDoc (JavaScript example)
+```js
+/**
+ * Returns city ids within a radius from a source city.
+ * Validates inputs and never mutates the original arrays.
+ */
+```
+
+These comments are short and placed above classes or functions that others will reuse.
+
+---
+
+## 9) Risks we prevented (quality & safety)
+- **Invalid data:** Reject reservations with impossible dates or missing hotels.  
+- **Broken deployments:** With automated tests, mistakes are detected before release.  
+- **Environment leaks:** No credentials are written in the repository; only variables.  
+- **Team onboarding:** Clear diagrams + examples reduce learning time for new members.  
+
+---
+
+## 10) How we meet C2 in the rubric (explicit mapping)
+- **Integration of knowledge:** We combined backend (API + DB), frontend, and testing. Each layer serves a clear purpose and supports the others.  
+- **Autonomy & adaptability:** The project runs from scratch using the steps above; anyone can reproduce the same setup locally.  
+- **Advanced documentation & visualization:** This README explains concepts in plain language and includes three diagrams (architecture, flow, and class model) as separate files for PDF delivery.  
+- **Innovation & leadership:** We enforced quality gates (≥90% coverage) and used pure functions in the graph module to simplify testing and maintenance.  
+- **Communication & clarity:** We provide examples, analogies, and a straightforward path from “User action” to “Stored reservation,” making it accessible to non-engineers.  
+
+---
+
+## 11) Where to find the diagrams
+All diagram sources are included as Mermaid `.mmd` files so you can open or edit them:
+
+```
+docs/diagrams/architecture.mmd
+docs/diagrams/flowchart.mmd
+docs/diagrams/class-diagram.mmd
+```
+
+You can export them to PDF with Mermaid CLI:
+```bash
+npm i -g @mermaid-js/mermaid-cli
+mmdc -i docs/diagrams/architecture.mmd -o docs/diagrams/architecture.pdf
+mmdc -i docs/diagrams/flowchart.mmd -o docs/diagrams/flowchart.pdf
+mmdc -i docs/diagrams/class-diagram.mmd -o docs/diagrams/class-diagram.pdf
+```
+
+---
+
+## 12) Glossary (for non-technical readers)
+| Term | Meaning |
+|------|----------|
+| **API** | A doorway for software to talk to software. |
+| **Endpoint** | A specific URL used to perform an action (e.g., create a reservation). |
+| **Database** | A secure “digital filing cabinet” for information. |
+| **Migration** | A versioned script that creates/updates database tables. |
+| **Unit test** | An automatic check for a small part of the system. |
+| **Coverage** | Percentage of code executed by tests. |
+| **Repository (JPA)** | Helper that reads/writes to the database without writing raw SQL. |
+
+---
+
+## 13) Maintenance & next steps
+- Connect the frontend graph to live distances from the backend.  
+- Add end-to-end tests that click the UI like a real user.  
+- Add internationalization (Spanish/English).  
+- Publish a one-click Docker Compose for backend + database.  
+
+---
+
+### End of Sprint 3 Documentation.
+
+---
+
+# `docs/diagrams/architecture.mmd`
+```mermaid
+flowchart TD
+  U[User (Browser)] --> F[Frontend (Astro)]
+  F -->|REST requests| A[Backend (Spring Boot API)]
+  A --> S[Service Layer (Business Rules)]
+  S --> R[JPA Repositories]
+  R --> DB[(PostgreSQL Database)]
+  F --> G[Graph Module (citiesGraph.js)]
+  subgraph Quality Gates
+    J1[JUnit + JaCoCo ≥90%]
+    J2[Jest Coverage ≥90%]
+  end
+  J1 --> A
+  J2 --> F
+```
+
+---
+
+# `docs/diagrams/flowchart.mmd`
+```mermaid
+flowchart LR
+  A[Start] --> B[User fills reservation form in the frontend]
+  B --> C[Frontend sends POST /api/reservaciones]
+  C --> D[Controller receives request]
+  D --> E[Service validates: hotel exists, dates make sense, guests > 0]
+  E -->|Valid| F[Repository saves reservation]
+  F --> G[(PostgreSQL stores data)]
+  G --> H[API returns 201 Created + JSON]
+  H --> I[Frontend shows confirmation]
+  E -->|Invalid| X[API returns error with message]
+  X --> B
+```
+
+---
+
+# `docs/diagrams/class-diagram.mmd`
+```mermaid
+classDiagram
+  class City {
+    +Long id
+    +String nombre
+    +String estado
+  }
+  class Hotel {
+    +Long id
+    +String nombre
+    +int estrellas [1..5]
+    +double precioPorNoche
+    +City ciudad
+  }
+  class Reservation {
+    +Long id
+    +Hotel hotel
+    +String nombreHuesped
+    +String email
+    +int numPersonas (>0)
+    +LocalDate fechaInicio
+    +LocalDate fechaFin (fechaFin>fechaInicio)
+  }
+  City "1" --> "many" Hotel
+  Hotel "1" --> "many" Reservation
+```
+
+
 
 
 
